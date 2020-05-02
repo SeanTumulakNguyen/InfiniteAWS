@@ -3,11 +3,11 @@ require('dotenv').config()
 
 const app = express();
 
-app.get('/api/register', (req, res) => {
-	res.json({
-		data: 'you hit the register endpoint'
-	});
-});
+// import routes
+const authRoutes = require('./routes/auth')
+
+// middlewares
+app.use('/api', authRoutes)
 
 const port = process.env.PORT || 8000
 
