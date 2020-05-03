@@ -24,6 +24,19 @@ const userSchema = new mongoose.Schema({
         lowercase: true
     },
     hashed_password: {
-        type: String
+        type: String,
+        required: true,
+    },
+    salt: String,
+    role: {
+        type: String,
+        default: 'subscriber'
+    },
+    resetPasswordLink: {
+        data: String,
+        default: ''
     }
-})
+}, {timestamps: true})
+
+// virtual fields
+
