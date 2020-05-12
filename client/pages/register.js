@@ -2,6 +2,7 @@ import Layout from '../components/Layout';
 import { useState } from 'react';
 import axios from 'axios';
 import { showSuccessMessage, showErrorMessage } from '../helpers/alerts';
+import { API } from '../config'
 
 const Register = () => {
 	const [
@@ -27,7 +28,7 @@ const Register = () => {
 		e.preventDefault();
 		setValues({ ...values, buttonText: 'Registering' });
 		try {
-			const response = await axios.post(`http://localhost:8000/api/register`, {
+			const response = await axios.post(`${API}/register`, {
 				name,
 				email,
 				password
@@ -88,6 +89,7 @@ const Register = () => {
 						className="form-control"
 						value={name}
 						placeholder="Type your name"
+						required
 					/>
 				</div>
 				<div className="form-group">
@@ -97,6 +99,7 @@ const Register = () => {
 						className="form-control"
 						value={email}
 						placeholder="Type your email"
+						required
 					/>
 				</div>
 				<div className="form-group">
@@ -106,6 +109,7 @@ const Register = () => {
 						className="form-control"
 						value={password}
 						placeholder="Type your password"
+						required
 					/>
 				</div>
 				<div className="form-group">
