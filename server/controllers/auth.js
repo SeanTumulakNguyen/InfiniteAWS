@@ -28,18 +28,22 @@ exports.register = (req, res) => {
 		const token = jwt.sign({ name, email, password }, process.env.JWT_ACCOUNT_ACTIVATION, { expiresIn: '1d' });
 
 		//send email
-		const params = registerEmailParams(email, token).promise();
+		const params = registerEmailParams(email, token);
 
 		const sendEmailOnRegister = ses.sendEmail(params).promise();
 
 		sendEmailOnRegister
 			.then((data) => {
 				console.log('Email submitted to SES', data);
-				res.send('Email sent');
+				res.json({
+					message: `Email has been sent to ${email}, Follow the instructions to complete your registration`
+				});
 			})
 			.catch((err) => {
 				console.log('SES email on Register', err);
-				res.send('Email failed');
+				res.json({
+					message: `We could not verify your email. Please try again.`
+				});
 			});
 	});
 };

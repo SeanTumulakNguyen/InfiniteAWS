@@ -12,6 +12,8 @@ const app = express();
 mongoose.connect(process.env.DATABASE_CLOUD, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => console.log('DB CONNECTED')
 ).catch(err => console.log('err'))
 
+mongoose.set('useCreateIndex', true)
+
 // import routes
 const authRoutes = require('./routes/auth');
 
