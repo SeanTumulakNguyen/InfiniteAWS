@@ -23,34 +23,60 @@ const Register = () => {
 		// console.log(e.target.value)
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setValues({ ...values, buttonText: 'Registering' });
-		// console.table({ name, email, password });
-		axios
-			.post(`http://localhost:8000/api/register`, {
+		try {
+			const response = await axios.post(`http://localhost:8000/api/register`, {
 				name,
 				email,
 				password
-			})
-			.then((response) => {
-				setValues({
-					...values,
-					name: '',
-					email: '',
-					password: '',
-					buttonText: 'Submitted',
-					success: response.data.message
-				});
-			})
-			.catch((error) => {
-				setValues({
-					...values,
-					buttonText: 'Register',
-					error: error.response.data.error
-				});
 			});
+			setValues({
+				...values,
+				name: '',
+				email: '',
+				password: '',
+				buttonText: 'Submitted',
+				success: response.data.message
+			});
+		} catch (error) {
+			setValues({
+				...values,
+				buttonText: 'Register',
+				error: error.response.data.error
+			});
+		}
 	};
+
+	// const handleSubmit = (e) => {
+	// 	e.preventDefault();
+	// 	setValues({ ...values, buttonText: 'Registering' });
+	// 	// console.table({ name, email, password });
+	// 	axios
+	// 		.post(`http://localhost:8000/api/register`, {
+	// 			name,
+	// 			email,
+	// 			password
+	// 		})
+	// 		.then((response) => {
+	// 			setValues({
+	// 				...values,
+	// 				name: '',
+	// 				email: '',
+	// 				password: '',
+	// 				buttonText: 'Submitted',
+	// 				success: response.data.message
+	// 			});
+	// 		})
+	// 		.catch((error) => {
+	// 			setValues({
+	// 				...values,
+	// 				buttonText: 'Register',
+	// 				error: error.response.data.error
+	// 			});
+	// 		});
+	// };
 
 	const registerForm = () => {
 		return (
