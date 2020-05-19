@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import { showSuccessMessage, showErrorMessage } from '../../../helpers/alerts';
-import { API } from '../../../components';
+import { API } from '../../../config';
 import Layout from '../../../components/Layout';
 
 const ActivateAccount = ({ router }) => {
@@ -47,7 +47,7 @@ const ActivateAccount = ({ router }) => {
 		<Layout>
 			<div className="row">
 				<div className="col-md-6 offset-md-3">
-					<h1>Hello ${name}, Are you ready to activate your account?</h1>
+					<h1>Hello {name}, Are you ready to activate your account?</h1>
 					<br />
 					{success && showSuccessMessage(success)}
 					{error && showErrorMessage(error)}

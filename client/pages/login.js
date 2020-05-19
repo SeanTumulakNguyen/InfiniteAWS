@@ -1,16 +1,14 @@
 import Layout from '../components/Layout';
 import { useState, useEffect } from 'react';
-import Link from 'next/link'
-import Router from 'next/router'
+import Link from 'next/link';
+import Router from 'next/router';
 import axios from 'axios';
 import { showSuccessMessage, showErrorMessage } from '../helpers/alerts';
-import { API } from '../config'
+import { API } from '../config';
+import { authenticate } from '../helpers/auth';
 
 const Login = () => {
-	const [
-		values,
-		setValues
-	] = useState({
+	const [ values, setValues ] = useState({
 		email: '',
 		password: '',
 		buttonText: 'Login',
@@ -33,7 +31,10 @@ const Login = () => {
 				email,
 				password
 			});
-			console.log(response)
+			// console.log(response)
+			authenticate(response, () => {
+				return Router.push('/');
+			});
 		} catch (error) {
 			setValues({
 				...values,
