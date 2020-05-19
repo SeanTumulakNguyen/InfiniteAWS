@@ -5,7 +5,7 @@ import Router from 'next/router';
 import axios from 'axios';
 import { showSuccessMessage, showErrorMessage } from '../helpers/alerts';
 import { API } from '../config';
-import { authenticate } from '../helpers/auth';
+import { authenticate, isAuth } from '../helpers/auth';
 
 const Login = () => {
 	const [ values, setValues ] = useState({
@@ -15,6 +15,10 @@ const Login = () => {
 		error: '',
 		success: ''
 	});
+
+	useEffect(() => {
+		isAuth() && Router.push('/');
+	}, []);
 
 	const { email, password, error, success, buttonText } = values;
 
@@ -33,7 +37,7 @@ const Login = () => {
 			});
 			// console.log(response)
 			authenticate(response, () => {
-				return Router.push('/');
+				return isAuth() && isAuth.role === 'admin' ? Router.push('/admin') : Router.push('/user');
 			});
 		} catch (error) {
 			setValues({
@@ -78,6 +82,7 @@ const Login = () => {
 		<Layout>
 			<div className="col-md-6 offset-md-3">
 				<h1>Login</h1>
+
 				<br />
 				{success && showSuccessMessage(success)}
 				{error && showErrorMessage(error)}
