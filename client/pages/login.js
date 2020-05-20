@@ -37,7 +37,7 @@ const Login = () => {
 			});
 			// console.log(response)
 			authenticate(response, () => {
-				return isAuth() && isAuth.role === 'admin' ? Router.push('/admin') : Router.push('/user');
+				return isAuth() && isAuth().role === 'admin' ? Router.push('/admin') : Router.push('/user');
 			});
 		} catch (error) {
 			setValues({
