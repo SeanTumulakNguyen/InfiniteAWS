@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
-const { registerEmailParams } = require('../helpers/email');
+const { registerEmailParams, forgotPasswordEmailParams } = require('../helpers/email');
 const shortid = require('shortid');
 const expressJwt = require('express-jwt');
 
@@ -126,8 +126,8 @@ exports.authMiddleware = (req, res, next) => {
 				error: 'User not found'
 			});
 		}
-		req.profile = user
-		next()
+		req.profile = user;
+		next();
 	});
 };
 
@@ -142,10 +142,50 @@ exports.adminMiddleware = (req, res, next) => {
 		}
 		if (user.role !== 'admin') {
 			return res.status(400).json({
-				error: "Admin resource. Access denied"
-			})
-		} 
-		req.profile = user
-		next()
+				error: 'Admin resource. Access denied'
+			});
+		}
+		req.profile = user;
+		next();
 	});
 };
+
+exports.forgotPassword = (req, res) => {
+	const { email } = req.body;
+	User.findOne({ email }).exec((err, user) => {
+		if (err || !user) {
+			return res.status(400).json({
+				error: 'User with that email does not exist'
+			});
+		}
+		const token = jwt.sign({ name: user.name }, process.env.JWT_REST_PASSWORD, { expiresIn: '10m' });
+
+		const params = forgotPasswordEmailParams(email, token);
+
+		// populate the database > user > resetPasswordLink
+		return user.updateOne({ resetPasswordLink: token }, (err, success) => {
+			if (err) {
+				return res.status(400).json({
+					error: 'Password reset failed. Try later'
+				});
+			}
+
+			const sendEmail = ses.sendEmail(params).promise();
+			sendEmail
+				.then((data) => {
+					console.log('SES reset password success', data);
+					return res.json({
+						message: `Email has been sent to ${email}. Click on the link to reset your password`
+					})
+				})
+				.catch((error) => {
+					console.log('SES reset password failed', error)
+					return res.json({
+						message: `We could not verify your email. Try later.`
+					})
+				});
+		});
+	});
+};
+
+exports.resetPassword = (req, res) => {};
