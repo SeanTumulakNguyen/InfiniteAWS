@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { registerEmailParams, forgotPasswordEmailParams } = require('../helpers/email');
 const shortid = require('shortid');
 const expressJwt = require('express-jwt');
+const _ = require('lodash')
 
 AWS.config.update({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -176,16 +177,57 @@ exports.forgotPassword = (req, res) => {
 					console.log('SES reset password success', data);
 					return res.json({
 						message: `Email has been sent to ${email}. Click on the link to reset your password`
-					})
+					});
 				})
 				.catch((error) => {
-					console.log('SES reset password failed', error)
+					console.log('SES reset password failed', error);
 					return res.json({
 						message: `We could not verify your email. Try later.`
-					})
+					});
 				});
 		});
 	});
 };
 
-exports.resetPassword = (req, res) => {};
+exports.resetPassword = (req, res) => {
+	const { resetPasswordLink, newPassword } = req.body;
+
+	if (resetPasswordLink) {
+		jwt.verify(resetPasswordLink, process.env.JWT_REST_PASSWORD, (err, success) => {
+			if (err) {
+				return res.status(400).json({
+					error: 'Expired link. Try again'
+				});
+			}
+
+			User.findOne({
+				resetPasswordLink
+			}).exec((err, user) => {
+				if (err || !user) {
+					return res.status(400).json({
+						error: 'Invalid token. Try again'
+					});
+				}
+				
+				const updatedFields = {
+					password: newPassword,
+					resetPasswordLink: ''
+				}
+
+				user = _.extend(user, updatedFields)
+
+				user.save((err, result) => {
+					if (err) {
+						return res.status(400).json({
+							error: 'Password reset failed. Try again'
+						});
+					}
+
+					res.json({
+						message: `Great! Now you can login with your new password`
+					})
+				})
+			});
+		});
+	}
+};
