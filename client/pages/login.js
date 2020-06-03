@@ -50,7 +50,7 @@ const Login = () => {
 
 	const loginForm = () => {
 		return (
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={handleSubmit} className='pb-5'>
 				<div className="form-group">
 					<input
 						onChange={handleChange('email')}
@@ -82,11 +82,13 @@ const Login = () => {
 		<Layout>
 			<div className="col-md-6 offset-md-3">
 				<h1>Login</h1>
-
 				<br />
 				{success && showSuccessMessage(success)}
 				{error && showErrorMessage(error)}
 				{loginForm()}
+				<Link href="/auth/password/forgot">
+					<a className="text-danger float-right">Forgot Password</a>
+				</Link>
 			</div>
 		</Layout>
 	);
