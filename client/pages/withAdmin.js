@@ -19,25 +19,25 @@ const withAdmin = (Page) => {
 				user = response.data;
 			} catch (err) {
 				if (error.response.status === 401) {
-					user = null
+					user = null;
 				}
 			}
-        }
-        if (user === null) {
-            context.res.writeHead(302, {
-                Location: '/'
-            })
-            context.res.end()
-        } else {
-            return {
-                ...(Page.getInitialProps ? await Page.getInitialProps(context) : {}),
-                user,
-                token
-            }
-        }
-    };
-    
-    return WithAdminUser
+		}
+		if (user === null) {
+			context.res.writeHead(302, {
+				Location: '/'
+			});
+			context.res.end();
+		} else {
+			return {
+				...(Page.getInitialProps ? await Page.getInitialProps(context) : {}),
+				user,
+				token
+			};
+		}
+	};
+
+	return WithAdminUser;
 };
 
-export default withAdmin
+export default withAdmin;

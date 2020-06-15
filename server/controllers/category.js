@@ -3,7 +3,7 @@ const slugify = require('slugify');
 const formidable = require('formidable');
 const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs')
+const fs = require('fs');
 
 const s3 = new AWS.S3({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -46,10 +46,10 @@ exports.create = (req, res) => {
 		}
 		// console.table({err, fields, files})
 		const { name, content } = fields;
-        const { image } = files;
-        
-        const slug = slugify(name);
-		let category = new Category({ name, content, slug })
+		const { image } = files;
+
+		const slug = slugify(name);
+		let category = new Category({ name, content, slug });
 		if (image.size > 2000000) {
 			return res.status(400).json({
 				error: 'Image should be less than 2mb'
@@ -63,23 +63,23 @@ exports.create = (req, res) => {
 			Body: fs.readFileSync(image.path),
 			ACL: 'public-read',
 			ContentType: 'image/jpg'
-		} 
+		};
 
 		s3.upload(params, (err, data) => {
-			if (err) res.status(400).json({ error: 'Upload to S3 failed' })
-			console.log('AWS Upload Response Data', data)
-			category.image.url = data.Location
-			category.image.key = data.key
+			if (err) res.status(400).json({ error: 'Upload to S3 failed' });
+			console.log('AWS Upload Response Data', data);
+			category.image.url = data.Location;
+			category.image.key = data.key;
 
 			// save to db
 			category.save((err, success) => {
 				if (err) {
-					console.log(err)
-					res.status(400).json({ error: 'Duplicate content' })
+					console.log(err);
+					res.status(400).json({ error: 'Duplicate content' });
 				}
-				return res.json(success)
-			})
-		})
+				return res.json(success);
+			});
+		});
 	});
 };
 
