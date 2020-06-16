@@ -12,6 +12,7 @@ const s3 = new AWS.S3({
 });
 
 // create, list, read, update, remove
+
 // exports.create = (req, res) => {
 // 	const { name, content } = req.body;
 
@@ -36,49 +37,89 @@ const s3 = new AWS.S3({
 // 	});
 // };
 
+// exports.create = (req, res) => {
+// 	let form = new formidable.IncomingForm();
+// 	form.parse(req, (err, fields, files) => {
+// 		if (err) {
+// 			return res.status(400).json({
+// 				error: 'Image could not upload'
+// 			});
+// 		}
+// 		// console.table({err, fields, files})
+// 		const { name, content } = fields;
+// 		const { image } = files;
+
+// 		const slug = slugify(name);
+// 		let category = new Category({ name, content, slug });
+// 		if (image.size > 2000000) {
+// 			return res.status(400).json({
+// 				error: 'Image should be less than 2mb'
+// 			});
+// 		}
+
+// 		// upload image to s3
+// 		const params = {
+// 			Bucket: 'juwami-react-node-aws',
+// 			Key: `category/${uuidv4()}`,
+// 			Body: fs.readFileSync(image.path),
+// 			ACL: 'public-read',
+// 			ContentType: 'image/jpg'
+// 		};
+
+// 		s3.upload(params, (err, data) => {
+// 			if (err) res.status(400).json({ error: 'Upload to S3 failed' });
+// 			console.log('AWS Upload Response Data', data);
+// 			category.image.url = data.Location;
+// 			category.image.key = data.key;
+
+// 			// save to db
+// 			category.save((err, success) => {
+// 				if (err) {
+// 					console.log(err);
+// 					res.status(400).json({ error: 'Duplicate content' });
+// 				}
+// 				return res.json(success);
+// 			});
+// 		});
+// 	});
+// };
+
 exports.create = (req, res) => {
-	let form = new formidable.IncomingForm();
-	form.parse(req, (err, fields, files) => {
-		if (err) {
-			return res.status(400).json({
-				error: 'Image could not upload'
-			});
-		}
-		// console.table({err, fields, files})
-		const { name, content } = fields;
-		const { image } = files;
+	const { name, image, content } = req.body;
+	// image data
+	const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+	const type = image.split(';')[0].split('/')[1];
 
-		const slug = slugify(name);
-		let category = new Category({ name, content, slug });
-		if (image.size > 2000000) {
-			return res.status(400).json({
-				error: 'Image should be less than 2mb'
-			});
-		}
+	const slug = slugify(name);
+	let category = new Category({ name, content, slug });
+	if (image.size > 2000000) {
+		return res.status(400).json({
+			error: 'Image should be less than 2mb'
+		});
+	}
 
-		// upload image to s3
-		const params = {
-			Bucket: 'juwami-react-node-aws',
-			Key: `category/${uuidv4()}`,
-			Body: fs.readFileSync(image.path),
-			ACL: 'public-read',
-			ContentType: 'image/jpg'
-		};
+	const params = {
+		Bucket: 'juwami-react-node-aws',
+		Key: `category/${uuidv4()}.${type}`,
+		Body: base64Data,
+		ACL: 'public-read',
+		ContentEncoding: 'base64',
+		ContentType: `image/${type}`
+	};
 
-		s3.upload(params, (err, data) => {
-			if (err) res.status(400).json({ error: 'Upload to S3 failed' });
-			console.log('AWS Upload Response Data', data);
-			category.image.url = data.Location;
-			category.image.key = data.key;
+	s3.upload(params, (err, data) => {
+		if (err) res.status(400).json({ error: 'Upload to S3 failed' });
+		console.log('AWS Upload Response Data', data);
+		category.image.url = data.Location;
+		category.image.key = data.Key;
 
-			// save to db
-			category.save((err, success) => {
-				if (err) {
-					console.log(err);
-					res.status(400).json({ error: 'Duplicate content' });
-				}
-				return res.json(success);
-			});
+		// save to db
+		category.save((err, success) => {
+			if (err) {
+				console.log(err);
+				res.status(400).json({ error: 'Duplicate content' });
+			}
+			return res.json(success);
 		});
 	});
 };
@@ -88,10 +129,10 @@ exports.list = (req, res) => {
 		if (err) {
 			return res.status(400).json({
 				error: 'Categories could not load'
-			})
+			});
 		}
-		res.json(data)
-	})
+		res.json(data);
+	});
 };
 
 exports.read = (req, res) => {};

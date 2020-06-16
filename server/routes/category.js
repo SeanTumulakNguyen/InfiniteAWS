@@ -11,7 +11,7 @@ const { requireSignin, adminMiddleware, authMiddleware } = require('../controlle
 const { create, list, read, update, remove } = require('../controllers/category');
 
 // routes
-router.post('/category', requireSignin, adminMiddleware, create);
+router.post('/category', categoryCreateValidator, runValidation, requireSignin, adminMiddleware, create);
 
 router.get('/categories', list);
 
