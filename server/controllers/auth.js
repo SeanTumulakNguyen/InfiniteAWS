@@ -37,13 +37,13 @@ exports.register = (req, res) => {
 
 		sendEmailOnRegister
 			.then((data) => {
-				console.log('Email submitted to SES', data);
+				// console.log('Email submitted to SES', data);
 				res.json({
 					message: `Email has been sent to ${email}, Follow the instructions to complete your registration`
 				});
 			})
 			.catch((err) => {
-				console.log('SES email on Register', err);
+				// console.log('SES email on Register', err);
 				res.json({
 					message: `We could not verify your email. Please try again.`
 				});
@@ -174,13 +174,13 @@ exports.forgotPassword = (req, res) => {
 			const sendEmail = ses.sendEmail(params).promise();
 			sendEmail
 				.then((data) => {
-					console.log('SES reset password success', data);
+					// console.log('SES reset password success', data);
 					return res.json({
 						message: `Email has been sent to ${email}. Click on the link to reset your password`
 					});
 				})
 				.catch((error) => {
-					console.log('SES reset password failed', error);
+					// console.log('SES reset password failed', error);
 					return res.json({
 						message: `We could not verify your email. Try later.`
 					});
