@@ -1,29 +1,39 @@
+import dynamic from 'next/dynamic';
 import Layout from '../../../components/Layout';
 import withAdmin from '../../withAdmin';
 import { useState, useEffect } from 'react';
 import Resizer from 'react-image-file-resizer';
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import axios from 'axios';
 import { API } from '../../../config';
 import { showSuccessMessage, showErrorMessage } from '../../../helpers/alerts';
+import 'react-quill/dist/quill.bubble.css'
 
 const Create = ({ user, token }) => {
 	const [ state, setState ] = useState({
 		name: '',
-		content: '',
 		error: '',
 		success: '',
 		image: '',
 		buttonText: 'Create'
 	});
 
+	const [content, setContent] = useState('')
+
 	const [ imageUploadButtonName, setImageUploadeButtonName ] = useState('Upload image');
 
-	const { name, content, error, success, image, buttonText } = state;
+	const { name, error, success, image, buttonText } = state;
 
 	const handleChange = (name) => (e) => {
 		setState({ ...state, [name]: e.target.value, error: '', success: '' });
 		// console.log(e.target.value)
 	};
+
+	const handleContent = e => {
+		// console.log(e)
+		setContent(e)
+		setState({...state, success: '', error: ''})
+	}
 
 	const handleImage = (event) => {
 		let fileInput = false;
@@ -88,7 +98,14 @@ const Create = ({ user, token }) => {
 				</div>
 				<div className="form-group">
 					<label className="text-muted">Content</label>
-					<textarea className="form-control" onChange={handleChange('content')} value={content} required />
+					<ReactQuill
+						value={content}
+						onChange={handleContent}
+						placeholder="Write something"
+						theme="bubble"
+						className="pb-5 mb-3"
+						style={{border: '1px solid #666'}}
+					/>
 				</div>
 				<div className="form-group pb-5">
 					<label className="btn btn-outline-secondary float-right">
