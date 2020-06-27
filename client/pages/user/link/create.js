@@ -31,7 +31,8 @@ const Create = () => {
 	};
 
 	const handleSubmit = async (e) => {
-		//
+		e.preventDefault()
+		console.table({title, url, categories, type, medium})
 	};
 
 	const handleTitleChange = (e) => {
@@ -42,19 +43,87 @@ const Create = () => {
 		setState({ ...state, url: e.target.value, error: '', success: '' });
 	};
 
+	const handleTypeClick = (e) => {
+		setState({ ...state, type: e.target.value, success: '', error: '' });
+	};
+
+	const showTypes = () => (
+		<React.Fragment>
+			<div className="form-check ml-3">
+				<label className="form-check-label">
+					<input
+						type="radio"
+						onClick={handleTypeClick}
+						checked={type === 'free'}
+						value="free"
+						name="type"
+					/>{' '}
+					Free
+				</label>
+			</div>
+
+			<div className="form-check ml-3">
+				<label className="form-check-label">
+					<input
+						type="radio"
+						onClick={handleTypeClick}
+						checked={type === 'paid'}
+						value="paid"
+						name="type"
+					/>{' '}
+					Paid
+				</label>
+			</div>
+		</React.Fragment>
+	);
+
+	const showMedium = () => (
+		<React.Fragment>
+			<div className="form-check ml-3">
+				<label className="form-check-label">
+					<input
+						type="radio"
+						onClick={handleMediumClick}
+						checked={medium === 'video'}
+						value="video"
+						name="medium"
+					/>{' '}
+					Video
+				</label>
+			</div>
+
+			<div className="form-check ml-3">
+				<label className="form-check-label">
+					<input
+						type="radio"
+						onClick={handleMediumClick}
+						checked={medium === 'book'}
+						value="book"
+						name="medium"
+					/>{' '}
+					Book
+				</label>
+			</div>
+		</React.Fragment>
+	);
+
+	const handleMediumClick = (e) => {
+		setState({ ...state, medium: e.target.value, success: '', error: '' });
+	};
+
 	const handleToggle = (c) => () => {
 		// return the first index or -1
-		const clickedCategory = categories.indexOf(c)
-		const all = [...categories]
+		const clickedCategory = categories.indexOf(c);
+		const all = [ ...categories ];
 
 		if (clickedCategory === -1) {
-			all.push(c)
+			all.push(c);
 		} else {
-			all.splice(clickedCategory, 1)
+			all.splice(clickedCategory, 1);
 		}
 
 		// console.log('All >> categories', all)
-		setState({...state, categories: all, success: '', error: ''})
+		setState({ ...state, categories: all, success: '', error: '' });
 	};
 
 	const showCategories = () => {
@@ -100,13 +169,20 @@ const Create = () => {
 				</div>
 			</div>
 			<div className="row">
-                <div className="col-md-4">
-                    <div className='form-group'>
-                        <label className='text-muted ml-4'>Category</label>
-                        <ul style={{maxHeight: '100px', overflowY: 'scroll'}}>{showCategories()}</ul>
+				<div className="col-md-4">
+					<div className="form-group">
+						<label className="text-muted ml-4">Category</label>
+						<ul style={{ maxHeight: '100px', overflowY: 'scroll' }}>{showCategories()}</ul>
 					</div>
-					{JSON.stringify(categories)}
-                </div>
+					<div className="form-group">
+						<label className="text-muted ml-4">Type</label>
+						{showTypes()}
+					</div>
+					<div className="form-group">
+						<label className="text-muted ml-4">Medium</label>
+						{showMedium()}
+					</div>
+				</div>
 				<div className="col-md-8">{submitLinkForm()}</div>
 			</div>
 		</Layout>
