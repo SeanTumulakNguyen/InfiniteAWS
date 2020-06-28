@@ -4,10 +4,13 @@ import axios from 'axios';
 import { API } from '../../config';
 import renderHTML from 'react-render-html';
 import { useState } from 'react';
-import moment from 'moment'
+import moment from 'moment';
 
 const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => {
 	const [ allLinks, setAllLinks ] = useState(links);
+	const [ limit, setLimit ] = useState(linksLimit);
+	const [ skip, setSkip ] = useState(0);
+	const [ size, setSize ] = useState(totalLinks);
 
 	const listOfLinks = () => {
 		return allLinks.map((l, i) => {
@@ -39,6 +42,27 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 		});
 	};
 
+	const loadMoreButton = (e) => {
+		return (
+			size > 0 &&
+			size >= limit && (
+				<button onClick={loadMore} className="btn btn-outline-primary btn-lg">
+					Load more
+				</button>
+			)
+		);
+	};
+
+	const loadMore = async () => {
+		let toSkip = skip + limit;
+
+        const response = await axios.post(`${API}/category/${query.slug}`, { toSkip, limit });
+        
+        setAllLinks([...allLinks, ...response.data.links])
+        setSize(response.data.links.length)
+        setSkip(toSkip)
+	};
+
 	return (
 		<Layout>
 			<div className="row">
@@ -58,7 +82,7 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 					<p>show popular links</p>
 				</div>
 			</div>
-			<p>load more button</p>
+			<div className="text center pb-5 pt-4">{loadMoreButton()}</div>
 		</Layout>
 	);
 };
