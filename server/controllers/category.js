@@ -160,10 +160,10 @@ exports.read = (req, res) => {
 				if (err) {
 					return res.status(400).json({
 						error: 'Could not load links of a category'
-					})
+					});
 				}
-				res.json({category, links})
-			})
+				res.json({ category, links });
+			});
 	});
 };
 
