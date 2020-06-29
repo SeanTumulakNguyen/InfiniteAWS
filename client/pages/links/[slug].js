@@ -5,6 +5,7 @@ import { API } from '../../config';
 import renderHTML from 'react-render-html';
 import { useState } from 'react';
 import moment from 'moment';
+import InfiniteScroll from 'react-infinite-scroller';
 
 const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => {
 	const [ allLinks, setAllLinks ] = useState(links);
@@ -64,16 +65,16 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 		setSkip(toSkip);
 	};
 
-	const loadMoreButton = () => {
-		return (
-			size > 0 &&
-			size >= limit && (
-				<button onClick={loadMore} className="btn btn-outline-primary btn-lg">
-					Load more
-				</button>
-			)
-		);
-	};
+	// const loadMoreButton = () => {
+	// 	return (
+	// 		size > 0 &&
+	// 		size >= limit && (
+	// 			<button onClick={loadMore} className="btn btn-outline-primary btn-lg">
+	// 				Load more
+	// 			</button>
+	// 		)
+	// 	);
+	// };
 
 	return (
 		<Layout>
@@ -94,7 +95,18 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 					<p>show popular links</p>
 				</div>
 			</div>
-			<div className="text center pb-5 pt-4">{loadMoreButton()}</div>
+			{/* <div className="text center pb-5 pt-4">{loadMoreButton()}</div> */}
+
+			<div className="row">
+				<div className="col-md-12 text-center">
+					<InfiniteScroll
+						pageStart={0}
+						loadMore={loadMore}
+						hasMore={size > 0 && size >= limit}
+						loader={<img src="/static/images/gifLoader.gif" alt="loading" />}
+					/>
+				</div>
+			</div>
 		</Layout>
 	);
 };
