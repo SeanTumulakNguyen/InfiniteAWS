@@ -26,7 +26,7 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 	const listOfLinks = () => {
 		return allLinks.map((l, i) => {
 			return (
-				<div className="row alert alert-primary p-2">
+				<div key={i} className="row alert alert-primary p-2">
 					<div className="col-md-8" onClick={(e) => handleClick(l._id)}>
 						<a href={l.url} target="_blank">
 							<h5 className="pt-2">{l.title}</h5>
@@ -47,7 +47,11 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 							{l.type} / {l.medium}
 						</span>
 						{l.categories.map((c, i) => {
-							return <span className="badge text-success">{c.name}</span>;
+							return (
+								<span className="badge text-success" key={i}>
+									{c.name}
+								</span>
+							);
 						})}
 					</div>
 				</div>
@@ -59,8 +63,8 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 		let toSkip = skip + limit;
 		const response = await axios.post(`${API}/category/${query.slug}`, { skip: toSkip, limit });
 		setAllLinks([ ...allLinks, ...response.data.links ]);
-		console.log('allLinks', allLinks);
-		console.log('response.data.links.length', response.data.links.length);
+		// console.log('allLinks', allLinks);
+		// console.log('response.data.links.length', response.data.links.length);
 		setSize(response.data.links.length);
 		setSkip(toSkip);
 	};
@@ -88,25 +92,30 @@ const Links = ({ query, category, links, totalLinks, linksLimit, linkSkip }) => 
 				</div>
 			</div>
 			<br />
-			<div className="row">
+			{/* <div className="row">
 				<div className="col-md-8">{listOfLinks()}</div>
 				<div className="col-md-4">
 					<h2 className="lead">Most popular in {category.name}</h2>
 					<p>show popular links</p>
 				</div>
-			</div>
+			</div> */}
+
 			{/* <div className="text center pb-5 pt-4">{loadMoreButton()}</div> */}
 
-			<div className="row">
-				<div className="col-md-12 text-center">
-					<InfiniteScroll
-						pageStart={0}
-						loadMore={loadMore}
-						hasMore={size > 0 && size >= limit}
-						loader={<img src="/static/images/gifLoader.gif" alt="loading" />}
-					/>
+			<InfiniteScroll
+				pageStart={0}
+				loadMore={loadMore}
+				hasMore={size > 0 && size >= limit}
+				loader={<img key={0} src="/static/images/gifLoader.gif" alt="loading" />}
+			>
+				<div className="row">
+					<div className="col-md-8">{listOfLinks()}</div>
+					<div className="col-md-4">
+						<h2 className="lead">Most popular in {category.name}</h2>
+						<p>show popular links</p>
+					</div>
 				</div>
-			</div>
+			</InfiniteScroll>
 		</Layout>
 	);
 };
