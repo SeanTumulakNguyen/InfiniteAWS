@@ -76,10 +76,10 @@ const Create = ({ user, token }) => {
 			);
 			// console.log('Category Create Response', response);
 			setImageUploadeButtonName('Upload image');
+			setContent('')
 			setState({
 				...state,
 				name: '',
-				content: '',
 				buttonText: 'Created',
 				success: `${response.data.name} is created`
 			});

@@ -167,6 +167,86 @@ exports.read = (req, res) => {
 	});
 };
 
-exports.update = (req, res) => {};
+exports.update = (req, res) => {
+	const { slug } = req.params;
+	const { name, image, content } = req.body;
 
-exports.remove = (req, res) => {};
+
+
+	Category.findOneAndUpdate({ slug }, { name, content }, { new: true }).exec((err, updated) => {
+		if (err) {
+			return res.status(400).json({
+				error: 'Could not find category to update'
+			});
+		}
+		if (image) {
+			// remove the existing image from s3 before uploading new/updated image
+			const deleteParams = {
+				Bucket: 'juwami-react-node-aws',
+				Key: `${updated.image.key}`
+			};
+
+			s3.deleteObject(deleteParams, function(err, data) {
+				if (err) console.log('S3 Delete Error During Update', err);
+				else console.log('S3 Deleted During Update', data);
+			});
+
+			// upload new image
+			const params = {
+				Bucket: 'juwami-react-node-aws',
+				Key: `category/${uuidv4()}.${type}`,
+				Body: base64Data,
+				ACL: 'public-read',
+				ContentEncoding: 'base64',
+				ContentType: `image/${type}`
+			};
+
+			s3.upload(params, (err, data) => {
+				if (err) res.status(400).json({ error: 'Upload to S3 failed' });
+				// console.log('AWS Upload Response Data', data);
+				updated.image.url = data.Location;
+				updated.image.key = data.Key
+		
+				// save to db
+				updated.save((err, success) => {
+					if (err) {
+						console.log(err);
+						res.status(400).json({ error: 'Duplicate content' });
+					}
+					res.json(success);
+				});
+			});
+		} else {
+			res.json(updated)
+		}
+
+
+	});
+};
+
+exports.remove = (req, res) => {
+	const { slug } = req.params
+
+	Category.findOneAndRemove({ slug }).exec((err, data) => {
+		if (err) {
+			return res.status(400).json({
+				error: 'Could not delete category'
+			});
+		}
+
+		//remove existing image from s3
+		const deleteParams = {
+			Bucket: 'juwami-react-node-aws',
+			Key: `${data.image.key}`
+		};
+
+		s3.deleteObject(deleteParams, function(err, data) {
+			if (err) console.log('S3 Object Delete Error', err);
+			else console.log('S3 Object Deleted', data);
+		});
+
+		res.json({
+			message: 'Category deleted successfully'
+		})
+	})
+};
