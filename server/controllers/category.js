@@ -171,7 +171,9 @@ exports.update = (req, res) => {
 	const { slug } = req.params;
 	const { name, image, content } = req.body;
 
-
+	// image data
+	const base64Data = new Buffer.from(image.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+	const type = image.split(';')[0].split('/')[1];
 
 	Category.findOneAndUpdate({ slug }, { name, content }, { new: true }).exec((err, updated) => {
 		if (err) {
@@ -205,8 +207,8 @@ exports.update = (req, res) => {
 				if (err) res.status(400).json({ error: 'Upload to S3 failed' });
 				// console.log('AWS Upload Response Data', data);
 				updated.image.url = data.Location;
-				updated.image.key = data.Key
-		
+				updated.image.key = data.Key;
+
 				// save to db
 				updated.save((err, success) => {
 					if (err) {
@@ -217,15 +219,13 @@ exports.update = (req, res) => {
 				});
 			});
 		} else {
-			res.json(updated)
+			res.json(updated);
 		}
-
-
 	});
 };
 
 exports.remove = (req, res) => {
-	const { slug } = req.params
+	const { slug } = req.params;
 
 	Category.findOneAndRemove({ slug }).exec((err, data) => {
 		if (err) {
@@ -247,6 +247,6 @@ exports.remove = (req, res) => {
 
 		res.json({
 			message: 'Category deleted successfully'
-		})
-	})
+		});
+	});
 };
