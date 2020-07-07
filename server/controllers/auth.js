@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const { registerEmailParams, forgotPasswordEmailParams } = require('../helpers/email');
 const shortid = require('shortid');
 const expressJwt = require('express-jwt');
-const _ = require('lodash')
+const _ = require('lodash');
+const Link = require('../models/link');
 
 AWS.config.update({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -208,13 +209,13 @@ exports.resetPassword = (req, res) => {
 						error: 'Invalid token. Try again'
 					});
 				}
-				
+
 				const updatedFields = {
 					password: newPassword,
 					resetPasswordLink: ''
-				}
+				};
 
-				user = _.extend(user, updatedFields)
+				user = _.extend(user, updatedFields);
 
 				user.save((err, result) => {
 					if (err) {
@@ -225,9 +226,29 @@ exports.resetPassword = (req, res) => {
 
 					res.json({
 						message: `Great! Now you can login with your new password`
-					})
-				})
+					});
+				});
 			});
 		});
 	}
+};
+
+exports.canUpdateDeleteLink = (req, res, next) => {
+	const { id } = req.params.slug;
+
+	Link.findOne({ _id: id }).exec((err, data) => {
+		if (err) {
+			return res.status(400).json({
+				error: 'Could not find link'
+			});
+		}
+		let authorizedUser = data.postedBy._id.toString() === req.user._id.toString();
+
+		if (!authorizedUser) {
+			return res.status(400).json({
+				error: 'You are not authorized'
+			});
+		}
+		next();
+	});
 };
