@@ -5,7 +5,7 @@ import { getCookie } from '../../helpers/auth';
 import withUser from '../withUser';
 import Link from 'next/link';
 import moment from 'moment';
-import Route from 'next/router'
+import Router from 'next/router'
 
 const User = ({ user, token, userLinks }) => {
 
@@ -28,7 +28,7 @@ const User = ({ user, token, userLinks }) => {
 			console.log('Link delete success', response)
 			Router.replace('/user')
 		} catch (err) {
-			console.log('Link delete error', error)
+			console.log('Link delete error', err)
 		}
 	};
 
@@ -37,7 +37,7 @@ const User = ({ user, token, userLinks }) => {
 		userLinks.map((l, i) => (
 			<div className="row alert alert-primary p-2" key={i}>
 				<div className="col-md-8">
-					<a href="{l.url}" target="_blank">
+					<a href={l.url} target="_blank">
 						<h5 className="pt-2">{l.title}</h5>
 						<h6 className="pt-2 text-danger" style={{ fontSize: '12px' }}>
 							{l.url}
@@ -60,7 +60,7 @@ const User = ({ user, token, userLinks }) => {
 					))}
 					<span className="badge text-secondary">{l.clicks}</span>
 
-					<Link href={`/user/link/${l.slug}`}>
+					<Link href={`/user/link/${l._id}`}>
 						<span className="badge text-warning pull-right">Update</span>
 					</Link>
 
