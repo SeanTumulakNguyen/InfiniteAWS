@@ -4,7 +4,7 @@ import axios from 'axios';
 import { API } from '../../../config';
 import { showSuccessMessage, showErrorMessage } from '../../../helpers/alerts';
 import { getCookie, isAuth } from '../../../helpers/auth';
-import  withUser  from '../../withUser'
+import withUser from '../../withUser'
 
 const Update = ({ oldLink, token }) => {
 	const [ state, setState ] = useState({
@@ -35,9 +35,18 @@ const Update = ({ oldLink, token }) => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		// console.table({title, url, categories, type, medium})
+		// use or update link based on logged in user role
+		let dynamicUpdateUrl
+		
+		if (isAuth() && isAuth().role === 'admin') {
+			dynamicUpdateUrl = `${API}/link/admin/${oldLink._id}`
+		} else {
+			dynamicUpdateUrl = `${API}/link/${oldLink._id}`
+		}
+
 		try {
 			const response = await axios.put(
-				`${API}/link/${oldLink._id}`,
+				dynamicUpdateUrl,
 				{ title, url, categories, type, medium },
 				{
 					headers: {
