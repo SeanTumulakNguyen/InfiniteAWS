@@ -8,7 +8,7 @@ const { runValidation } = require('../validators');
 // controllers
 const { requireSignin, adminMiddleware, authMiddleware, canUpdateDeleteLink } = require('../controllers/auth');  
 
-const { create, list, read, update, remove, clickCount } = require('../controllers/link');
+const { create, list, read, update, remove, clickCount, popular, popularInCategory } = require('../controllers/link');
 
 // routes
 router.post('/link', linkCreateValidator, runValidation, requireSignin, authMiddleware, create);
@@ -16,6 +16,10 @@ router.post('/link', linkCreateValidator, runValidation, requireSignin, authMidd
 router.post('/links', requireSignin, adminMiddleware, list);
 
 router.put('/click-count', clickCount)
+
+router.get('/link/popular', popular)
+
+router.get('/link/popular/:slug', popularInCategory)
 
 router.get('/link/:id', read);
 
